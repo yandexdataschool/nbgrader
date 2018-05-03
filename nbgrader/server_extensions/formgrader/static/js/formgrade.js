@@ -1,4 +1,4 @@
-function FormGrader (base_url, submission_id) {
+function FormGrader(base_url, submission_id) {
 
     this.base_url = base_url;
     this.submission_id = submission_id;
@@ -11,6 +11,10 @@ function FormGrader (base_url, submission_id) {
     this.comments;
     this.comment_uis;
 
+    this.$feedback_wrapper = null;
+    this.$feedback_button = null;
+    this.$feedback__info = null;
+
     this.keyboard_manager;
 
     this.loaded = false;
@@ -21,10 +25,15 @@ FormGrader.prototype.init = function () {
     this.loadComments();
 
     // disable link selection on tabs
-    $('a:not(.tabbable)').attr('tabindex', '-1');
+    $("a:not(.tabbable)").attr("tabindex", "-1");
 
     this.configureTooltips();
     this.configureScrolling();
+
+    this.$feedback_wrapper = $(".feedback__wrapper");
+    this.$feedback_button = $(".feedback__button");
+    this.$feedback__info = $(".feedback__info");
+    this.configureFeedbackButton();
 
     this.keyboard_manager = new KeyboardManager();
     this.keyboard_manager.register({
@@ -124,32 +133,32 @@ FormGrader.prototype.loadComments = function () {
 };
 
 FormGrader.prototype.navigateTo = function (location) {
-    return this.base_url + '/submissions/' + this.submission_id + '/' + location + '?index=' + this.current_index;
+    return this.base_url + "/submissions/" + this.submission_id + "/" + location + "?index=" + this.current_index;
 };
 
 FormGrader.prototype.nextAssignment = function () {
-    var url = this.navigateTo('next');
+    var url = this.navigateTo("next");
     this.save(function () {
         window.location = url;
     });
 };
 
 FormGrader.prototype.nextIncorrectAssignment = function () {
-    var url = this.navigateTo('next_incorrect');
+    var url = this.navigateTo("next_incorrect");
     this.save(function () {
         window.location = url;
     });
 };
 
 FormGrader.prototype.prevAssignment = function () {
-    var url = this.navigateTo('prev');
+    var url = this.navigateTo("prev");
     this.save(function () {
         window.location = url;
     });
 };
 
 FormGrader.prototype.prevIncorrectAssignment = function () {
-    var url = this.navigateTo('prev_incorrect');
+    var url = this.navigateTo("prev_incorrect");
     this.save(function () {
         window.location = url;
     });
@@ -225,9 +234,9 @@ FormGrader.prototype.focusInput = function (e) {
 };
 
 FormGrader.prototype.configureTooltips = function () {
-    $("li.previous a").tooltip({container: 'body'});
-    $("li.next a").tooltip({container: 'body'});
-    $("li.live-notebook a").tooltip({container: 'body'});
+    $("li.previous a").tooltip({container: "body"});
+    $("li.next a").tooltip({container: "body"});
+    $("li.live-notebook a").tooltip({container: "body"});
 };
 
 FormGrader.prototype.setIndexFromUrl = function () {
@@ -254,8 +263,8 @@ FormGrader.prototype.setCurrentIndex = function (index) {
             this.current_index = this.getIndex(target);
         }
 
-    // otherwise we do some value checking and just set the
-    // value directly
+        // otherwise we do some value checking and just set the
+        // value directly
     } else {
         if (index < 0) {
             this.current_index = 0;
@@ -275,7 +284,7 @@ FormGrader.prototype.scrollToLastSelected = function () {
     $("body, html").stop().animate({
         scrollTop: that.getScrollPosition()
     }, 500);
-}
+};
 
 FormGrader.prototype.configureScrolling = function () {
     var that = this;
@@ -301,22 +310,22 @@ FormGrader.prototype.configureScrolling = function () {
 
 FormGrader.prototype.flag = function () {
     $.ajax({
-        'method': 'POST',
-        'url': base_url + '/api/submitted_notebook/' + submission_id + '/flag',
-        'headers': {'X-CSRFToken': getCookie("_xsrf")},
-        'success': function (data, status, xhr) {
+        "method": "POST",
+        "url": base_url + "/api/submitted_notebook/" + submission_id + "/flag",
+        "headers": {"X-CSRFToken": getCookie("_xsrf")},
+        "success": function (data, status, xhr) {
             var elem = $("#statusmessage");
             data = JSON.parse(data);
             if (data.flagged) {
                 elem.text("Submission flagged");
                 elem.css({
-                    'color': 'rgba(255, 0, 0, 0.6)'
+                    "color": "rgba(255, 0, 0, 0.6)"
                 });
                 elem.show();
             } else {
                 elem.text("Submission unflagged");
                 elem.css({
-                    'color': 'rgba(0, 100, 0, 0.6)'
+                    "color": "rgba(0, 100, 0, 0.6)"
                 });
                 elem.show();
             }
@@ -327,7 +336,47 @@ FormGrader.prototype.flag = function () {
     });
 };
 
+FormGrader.prototype.configureFeedbackButton = function () {
+    var _this = this;
+
+    this.$feedback_button.on("click", function () {
+        _this.$feedback_wrapper.addClass("feedback_loader");
+        _this.$feedback_button.attr("disabled", true);
+
+        $
+            .ajax({
+                url: base_url + "/api/feedback",
+                method: "POST",
+                contentType: "application/json",
+                processData: false,
+                headers: {
+                    "X-CSRFToken": getCookie("_xsrf")
+                },
+                data: JSON.stringify({
+                    assignment_id: assignment_id,
+                    notebook_id: notebook_id,
+                    student_id: student_id
+                })
+            })
+            .done(function (msg) {
+                _this.$feedback__info.removeClass("feedback__info_error");
+                _this.$feedback__info.addClass("feedback__info_success");
+                _this.$feedback__info.text(msg);
+            })
+            .fail(function (jqXHR, textStatus) {
+                _this.$feedback__info.removeClass("feedback__info_success");
+                _this.$feedback__info.addClass("feedback__info_error");
+                _this.$feedback__info.text(textStatus);
+            })
+            .always(function () {
+                _this.$feedback_wrapper.removeClass("feedback_loader");
+                _this.$feedback_button.attr("disabled", false);
+            })
+    });
+};
+
 var formgrader = new FormGrader(base_url, submission_id);
+
 $(window).load(function () {
-    formgrader.init()
+    formgrader.init();
 });

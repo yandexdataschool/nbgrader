@@ -1,10 +1,13 @@
 import json
 import os
+import subprocess
 
 from tornado import web
 
+from nbgrader.config import TOKEN
 from .base import BaseApiHandler, check_xsrf
 from ...api import MissingEntry
+from ...email import send_email
 
 
 class GradeCollectionHandler(BaseApiHandler):
@@ -197,6 +200,99 @@ class StudentHandler(BaseApiHandler):
         self.write(json.dumps(self.api.get_student(student_id)))
 
 
+class StudentHandlerToken(BaseApiHandler):
+    def get(self, student_id):
+        token = self.request.headers.get('Token')
+
+        if token == TOKEN:
+            data = self.get_json_body()
+
+            if data:
+                student = {
+                    "last_name": data.get("last_name", None),
+                    "first_name": data.get("first_name", None),
+                    "email": data.get("email", None),
+                }
+
+                student_id = student_id.strip()
+
+                self.gradebook.update_or_create_student(student_id, **student)
+                self.write(json.dumps(self.api.get_student(student_id)))
+            else:
+                self.set_status(400)
+                self.write('Нет данных')
+        else:
+            self.set_status(400)
+            self.write('Аутентификация не пройдена')
+
+
+class FeedbackHandler(BaseApiHandler):
+    @web.authenticated
+    @check_xsrf
+    def post(self):
+        data = self.get_json_body()
+
+        if data:
+            assignment_id = data.get("assignment_id", None)
+            # notebook_id = data.get("notebook_id", None)
+            student_id = data.get("student_id", None)
+
+            if assignment_id and student_id:
+                student = self.api.get_student(student_id)
+
+                if student["email"]:
+                    command = 'nbgrader feedback --force {} --student {}'.format(assignment_id, student_id)
+
+                    code = subprocess.call(
+                        command,
+                        cwd=os.getcwd(),
+                        shell=True
+                    )
+
+                    if code == 0:
+                        subject = 'Отзыв о работе "{}"'.format(assignment_id)
+                        send_to = [
+                            student["email"]
+                        ]
+
+                        # TODO: найти другой способ определять путь
+                        feedback_dir = os.path.join(
+                            os.getcwd(),
+                            'feedback',
+                            student_id,
+                            assignment_id
+                        )
+
+                        attachments = [
+                            os.path.join(feedback_dir, f) for f in os.listdir(feedback_dir) if not f.startswith('.')
+                        ]
+
+                        try:
+                            send_email(
+                                subject,
+                                'Отзыв о вашей работе во вложении',
+                                send_to,
+                                attachments
+                            )
+
+                            self.write('Письмо отправлено')
+                        except Exception as e:
+                            self.set_status(400)
+                            self.write('Не удалось отправить письмо: {}'.format(e))
+                    else:
+                        self.set_status(400)
+                        self.write('Не удалось создать feedback')
+                else:
+                    self.set_status(400)
+                    self.write('У студента не указана электронная почта')
+            else:
+                self.set_status(400)
+                self.write('Недостаточно данных')
+        else:
+            self.set_status(400)
+            self.write('Нет данных')
+
+
 class StudentSubmissionCollectionHandler(BaseApiHandler):
     @web.authenticated
     @check_xsrf
@@ -273,6 +369,9 @@ default_handlers = [
 
     (r"/formgrader/api/students", StudentCollectionHandler),
     (r"/formgrader/api/student/([^/]+)", StudentHandler),
+
+    (r"/formgrader/api/token/student/([^/]+)", StudentHandlerToken),
+    (r"/formgrader/api/feedback", FeedbackHandler),
 
     (r"/formgrader/api/student_submissions/([^/]+)", StudentSubmissionCollectionHandler),
     (r"/formgrader/api/student_notebook_submissions/([^/]+)/([^/]+)", StudentNotebookSubmissionCollectionHandler),
