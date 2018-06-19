@@ -1,5 +1,6 @@
 import logging
 import smtplib
+import os
 
 from email.mime.application import MIMEApplication
 from email.mime.text import MIMEText
@@ -7,14 +8,12 @@ from email.mime.multipart import MIMEMultipart
 from email.utils import formatdate
 from os.path import basename
 
-from nbgrader import config
-
 logger = logging.getLogger(__name__)
 
 
 def send_email(subject, text, send_to, files):
     msg = MIMEMultipart()
-    msg["From"] = config.EMAIL_FROM
+    msg["From"] = os.environ['NBGRADER_EMAIL_FROM']
     msg["To"] = ", ".join(send_to)
     msg["Subject"] = subject
     msg["Date"] = formatdate(localtime=True)
@@ -32,12 +31,12 @@ def send_email(subject, text, send_to, files):
         except IOError:
             logger.warning("Error opening attachment file {}".format(f))
 
-    server = smtplib.SMTP(config.EMAIL_HOST, config.EMAIL_PORT)
+    server = smtplib.SMTP(os.environ['NBGRADER_EMAIL_HOST'], os.environ['NBGRADER_EMAIL_POST'])
     server.ehlo()
     server.starttls()
-    server.login(config.EMAIL_HOST_USER, config.EMAIL_HOST_PASSWORD)
+    server.login(os.environ['NBGRADER_EMAIL_USER'], os.environ['NBGRADER_EMAIL_PASSWORD'])
 
-    server.sendmail(config.EMAIL_FROM, send_to, msg.as_string())
+    server.sendmail(os.environ['NBGRADER_EMAIL_FROM'], send_to, msg.as_string())
 
     logger.info("Letter was sent to {}".format(", ".join(send_to)))
 
