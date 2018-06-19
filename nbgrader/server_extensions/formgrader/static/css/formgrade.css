@@ -33,46 +33,48 @@ li.next a, li.previous a {
 }
 
 .navbar .col-md-2 {
-  padding-left: 0px;
-  padding-right: 0px;
+    padding-left: 0px;
+    padding-right: 0px;
 }
 
 .navbar-nav.navbar-right:last-child {
-  margin-right: 0px;
+    margin-right: 0px;
 }
 
 body {
-  overflow: visible;
-  font-size: 14px;
-  padding-top: 70px;
+    overflow: visible;
+    font-size: 14px;
+    padding-top: 70px;
 }
 
 div#notebook {
-  overflow: visible;
-  border-top: none;
+    overflow: visible;
+    border-top: none;
 }
 
 div#notebook-container {
-  width: 100%;
+    width: 100%;
 }
 
 @media print {
-  div.cell {
-    display: block;
-    page-break-inside: avoid;
-  }
-  div.output_wrapper {
-    display: block;
-    page-break-inside: avoid;
-  }
-  div.output {
-    display: block;
-    page-break-inside: avoid;
-  }
+    div.cell {
+        display: block;
+        page-break-inside: avoid;
+    }
+
+    div.output_wrapper {
+        display: block;
+        page-break-inside: avoid;
+    }
+
+    div.output {
+        display: block;
+        page-break-inside: avoid;
+    }
 }
 
 div.prompt {
-  min-width: 21ex;
+    min-width: 21ex;
 }
 
 img {
@@ -111,12 +113,12 @@ div.nbgrader_cell .input_area {
 }
 
 .needs_manual_grade {
-  background-color: #f2dede;
-  border-color: #d43f3a;
+    background-color: #f2dede;
+    border-color: #d43f3a;
 }
 
 .mark-graded {
-  display: none;
+    display: none;
 }
 
 .nbgrader-label {
@@ -134,76 +136,76 @@ div.nbgrader_cell .input_area {
 }
 
 .scoring-buttons button {
-  background-color: #337ab7;
+    background-color: #337ab7;
 }
 
 .scoring-buttons button.btn-success {
-  background-color: rgba(92, 184, 92, .1);
-  border-color: rgb(47, 92, 47);
+    background-color: rgba(92, 184, 92, .1);
+    border-color: rgb(47, 92, 47);
 }
 
 .scoring-buttons button.btn-success:hover {
-  background-color: #5cb85c;
-  border-color: #4cae4c;
+    background-color: #5cb85c;
+    border-color: #4cae4c;
 }
 
 .scoring-buttons button.btn-danger {
-  background-color: rgba(217, 83, 79, .2);
-  border-color: rgb(120, 45, 45);
+    background-color: rgba(217, 83, 79, .2);
+    border-color: rgb(120, 45, 45);
 }
 
 .scoring-buttons button.btn-danger:hover {
-  background-color: #d9534f;
-  border-color: #d43f3a;
+    background-color: #d9534f;
+    border-color: #d43f3a;
 }
 
 .scoring-buttons button.btn-warning {
-  background-color: rgba(240, 173, 78, 0.2);
-  border-color: #7C4F0E;
+    background-color: rgba(240, 173, 78, 0.2);
+    border-color: #7C4F0E;
 }
 
 .scoring-buttons button.btn-warning:hover {
-  background-color: #f0ad4e;
-  border-color: #eea236;
+    background-color: #f0ad4e;
+    border-color: #eea236;
 }
 
 .help {
-  position: fixed;
-  font-size: 4em;
-  bottom: 10px;
-  right: 10px;
-  width: 56px;
-  height: 56px;
-  line-height: 56px;
-  color: rgba(0, 0, 0, .3);
+    position: fixed;
+    font-size: 4em;
+    bottom: 10px;
+    right: 10px;
+    width: 56px;
+    height: 56px;
+    line-height: 56px;
+    color: rgba(0, 0, 0, .3);
 }
 
 .help:hover {
-  color: rgba(0, 0, 0, 1);
-  cursor: pointer;
-  cursor: hand;
+    color: rgba(0, 0, 0, 1);
+    cursor: pointer;
+    cursor: hand;
 }
 
 .shortcut-key {
-  font-family: monospace;
+    font-family: monospace;
 }
 
 .striped > div {
-  padding: .3em 1em;
+    padding: .3em 1em;
 }
 
 .striped > div:nth-child(odd) {
-   background-color: #ddd;
- }
+    background-color: #ddd;
+}
 
- .modal {
-  z-index: 1050;
- }
+.modal {
+    z-index: 1050;
+}
 
 .modal-backdrop {
-  bottom: 0;
-  position: fixed;
-  z-index: 1040;
+    bottom: 0;
+    position: fixed;
+    z-index: 1040;
 }
 
 #statusmessage {
@@ -217,15 +219,96 @@ div.nbgrader_cell .input_area {
 }
 
 .name-shown {
-  display: none;
+    display: none;
 }
 
 .glyphicon.name-shown, .glyphicon.name-hidden {
-  cursor: pointer;
-  cursor: hand;
-  color: #000;
+    cursor: pointer;
+    cursor: hand;
+    color: #000;
 }
 
 .breadcrumb .glyphicon {
-  margin-left: 5px;
+    margin-left: 5px;
+}
+
+.feedback {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 50px;
+}
+
+.feedback__wrapper {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.feedback__button {
+    margin-left: 15px;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 15px;
+    color: white;
+    background-color: #337ab7;
+    transition-duration: 0.5s;
+    cursor: pointer;
+}
+
+.feedback__button:hover {
+    background-color: #5cb85c;
+}
+
+.feedback__loader,
+.feedback__loader:after {
+    display: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+}
+
+.feedback__loader {
+    position: relative;
+    font-size: 10px;
+    border-top: 0.5em solid rgba(221, 221, 221, 0.2);
+    border-right: 0.5em solid rgba(221, 221, 221, 0.2);
+    border-bottom: 0.5em solid rgba(221, 221, 221, 0.2);
+    border-left: 0.5em solid #337ab7;
+    transform: translateZ(0);
+    animation: load 1s infinite linear;
+}
+
+@keyframes load {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.feedback__info {
+    display: none;
+    width: 150px;
+    margin-top: 10px;
+    align-self: flex-end;
+}
+
+.feedback__info_success {
+    display: block;
+    color: #5cb85c;
+}
+
+.feedback__info_error {
+    display: block;
+    color: red;
+}
+
+.feedback__wrapper.feedback_loader .feedback__loader {
+    display: inline-block;
+}
+
+.feedback__wrapper.feedback_loader .feedback__button:disabled {
+    background-color: #ddd;
+    cursor: not-allowed;
 }

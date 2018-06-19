@@ -1,15 +1,18 @@
+import copy
+
 from nbconvert.preprocessors import ExecutePreprocessor
-from traitlets import Bool, List, Integer
+from nbgrader.utils import is_grade, is_solution
 from textwrap import dedent
+from traitlets import Bool, List, Integer
 
 from . import NbGraderPreprocessor
+
 
 class UnresponsiveKernelError(Exception):
     pass
 
 
 class Execute(NbGraderPreprocessor, ExecutePreprocessor):
-
     interrupt_on_timeout = Bool(True)
     allow_errors = Bool(True)
     raise_on_iopub_timeout = Bool(True)
@@ -30,7 +33,21 @@ class Execute(NbGraderPreprocessor, ExecutePreprocessor):
     ).tag(config=True)
 
     def preprocess(self, nb, resources, retries=None):
+        autograde_cells = []
+
+        self.log.info("Notebook cells: {}".format(len(nb.cells)))
+
+        for cell in nb.cells:
+            if is_grade(cell) or is_solution(cell):
+                autograde_cells.append(cell)
+
+        self.log.info("Notebook autograde cells: {}".format(len(autograde_cells)))
+
+        old_cells = copy.deepcopy(nb.cells)
+        nb.cells = autograde_cells
+
         kernel_name = nb.metadata.get('kernelspec', {}).get('name', 'python')
+
         if self.extra_arguments == [] and kernel_name == "python":
             self.extra_arguments = ["--HistoryManager.hist_file=:memory:"]
 
@@ -45,5 +62,7 @@ class Execute(NbGraderPreprocessor, ExecutePreprocessor):
             else:
                 self.log.warning("Failed to execute notebook, trying again...")
                 return self.preprocess(nb, resources, retries=retries - 1)
+
+        nb.cells = old_cells
 
         return output
