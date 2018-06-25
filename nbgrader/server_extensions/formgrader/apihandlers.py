@@ -4,7 +4,6 @@ import subprocess
 
 from tornado import web
 
-from nbgrader.config import TOKEN
 from .base import BaseApiHandler, check_xsrf
 from ...api import MissingEntry
 from ...email import send_email
@@ -204,7 +203,7 @@ class StudentHandlerToken(BaseApiHandler):
     def get(self, student_id):
         token = self.request.headers.get('Token')
 
-        if token == TOKEN:
+        if token == os.environ.get('NBGRADER_TOKEN'):
             data = self.get_json_body()
 
             if data:
