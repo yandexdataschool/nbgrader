@@ -15,6 +15,7 @@ from .deduplicateids import DeduplicateIds
 from .latesubmissions import AssignLatePenalties
 from .clearhiddentests import ClearHiddenTests
 from .overwritekernelspec import OverwriteKernelspec
+from .compiletestfunctions import CompileTestFunctions
 
 __all__ = [
     "AssignLatePenalties",
@@ -33,4 +34,5 @@ __all__ = [
     "DeduplicateIds",
     "ClearHiddenTests",
     "OverwriteKernelspec",
+    "CompileTestFunctions",
 ]
