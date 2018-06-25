@@ -95,6 +95,7 @@ class CompileTestFunctions(NbGraderPreprocessor):
 
     def preprocess(self, nb, resources):
         self.first_cell_code_index = -1
+        self.hidden_block_lines = []
 
         nb, resources = super(CompileTestFunctions, self).preprocess(nb, resources)
 
@@ -124,10 +125,10 @@ class CompileTestFunctions(NbGraderPreprocessor):
 
             # compile
             os.chdir(build_path)
-            run_setup('setup.py', ['--quiet', 'build_ext', '--inplace',])
+            run_setup('setup.py', ['build_ext', '--inplace',])
 
             # cleanup
-            rmtree('build')
+            rmtree('build', ignore_errors=True)
             os.remove('{}.c'.format(self.notebook_id))
             os.remove('{}.py'.format(self.notebook_id))
             os.remove('setup.py')
@@ -136,7 +137,6 @@ class CompileTestFunctions(NbGraderPreprocessor):
             cell = nb.cells[self.first_cell_code_index]
             cell.source = "from tests.{} import *\n".format(self.notebook_id) + cell.source
 
-            self.hidden_block_lines = []
             os.chdir(orig_dir)
 
         return nb, resources
