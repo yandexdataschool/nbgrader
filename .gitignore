@@ -104,3 +104,4 @@ README
 .pytest_cache
 venv/
 .idea/
+data/
