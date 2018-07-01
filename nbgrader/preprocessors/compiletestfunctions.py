@@ -1,6 +1,7 @@
 import os
+import tempfile
 from distutils.core import run_setup
-from shutil import rmtree
+from shutil import rmtree, copyfile
 
 from traitlets import Unicode
 
@@ -103,41 +104,45 @@ class CompileTestFunctions(NbGraderPreprocessor):
         self.notebook_id = resources['nbgrader']['notebook']
 
         if self.hidden_block_lines:
-            self.log.info(resources)
-
             orig_dir = os.getcwd()
-            build_path = os.path.join('release',
-                                      self.assignment_id, 'tests')
+
+            # make && compile library
+            tmp_path = tempfile.mkdtemp()
+            os.chdir(tmp_path)
 
             filename = '{}.py'.format(self.notebook_id)
 
-            os.makedirs(build_path, exist_ok=True)
+            with open(filename, 'w') as fp:
+                fp.write('\n'.join(self.hidden_block_lines))
 
-            package_init_file = os.path.join(build_path, '__init__.py')
+            with open('setup.py', 'w') as fp:
+                fp.write(SETUP_FILE_TEMPLATE.format(ext_name=self.notebook_id, filename=filename))
+
+            run_setup('setup.py', ['build_ext', '--inplace'])
+            os.chdir(orig_dir)
+
+            # make package
+            library_path = os.path.join('release',
+                                      self.assignment_id, 'tests')
+            os.makedirs(library_path, exist_ok=True)
+
+            package_init_file = os.path.join(library_path, '__init__.py')
             if not os.path.exists(package_init_file):
                 open(package_init_file, 'w').close()
 
-            with open(os.path.join(build_path, filename), 'w') as fp:
-                fp.write("\n".join(self.hidden_block_lines))
+            compiled_filename = '{}.so'.format(self.notebook_id)
 
-            with open(os.path.join(build_path, 'setup.py'), 'w') as fp:
-                fp.write(SETUP_FILE_TEMPLATE.format(ext_name=self.notebook_id, filename=filename))
-
-            # compile
-            os.chdir(build_path)
-            run_setup('setup.py', ['build_ext', '--inplace',])
+            copyfile(
+                os.path.join(tmp_path, compiled_filename),
+                os.path.join(library_path, compiled_filename),
+            )
 
             # cleanup
-            rmtree('build', ignore_errors=True)
-            os.remove('{}.c'.format(self.notebook_id))
-            os.remove('{}.py'.format(self.notebook_id))
-            os.remove('setup.py')
+            rmtree(tmp_path, ignore_errors=True)
 
             # add imports to first cell
             cell = nb.cells[self.first_cell_code_index]
             cell.source = "from tests.{} import *\n".format(self.notebook_id) + cell.source
-
-            os.chdir(orig_dir)
 
         return nb, resources
 
