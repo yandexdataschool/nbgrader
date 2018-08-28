@@ -23,6 +23,7 @@ function FormGrader(base_url, submission_id) {
 FormGrader.prototype.init = function () {
     this.loadGrades();
     this.loadComments();
+    this.configureSaveButton();
 
     // disable link selection on tabs
     $("a:not(.tabbable)").attr("tabindex", "-1");
@@ -335,6 +336,16 @@ FormGrader.prototype.flag = function () {
         }
     });
 };
+
+FormGrader.prototype.configureSaveButton = function() {
+    var that = this;
+
+    $("#save_review").on("click", function () {
+       that.save(function() {
+           console.log("Review saved.")
+       })
+    });
+}
 
 FormGrader.prototype.configureFeedbackButton = function () {
     var _this = this;

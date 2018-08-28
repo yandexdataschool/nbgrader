@@ -56,6 +56,9 @@
                     </div>
                 </div>
             </div>
+            <div class="panel-footer text-center">
+                <button id="save_review" class="btn btn-primary btn-lg">Save review</button>
+            </div>
         </div>
         <div class="feedback">
             <div class="feedback__wrapper">
@@ -64,6 +67,7 @@
             </div>
             <p class="feedback__info"></p>
         </div>
+
     </div>
     <div class="help"><span class="glyphicon glyphicon-question-sign"></span></div>
     <div id="statusmessage"></div>
