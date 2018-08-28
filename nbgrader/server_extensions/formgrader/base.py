@@ -35,6 +35,13 @@ class BaseHandler(IPythonHandler):
             self.settings['nbgrader_gradebook'] = gb
         return gb
 
+    def prepare(self):
+        return super(BaseHandler, self).prepare()
+        self.settings['nbgrader_gradebook'] = Gradebook(self.db_url)
+
+    def on_finish(self):
+        self.gradebook.close()
+
     @property
     def mathjax_url(self):
         return self.settings['mathjax_url']
