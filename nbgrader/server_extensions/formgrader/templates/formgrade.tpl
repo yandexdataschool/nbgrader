@@ -60,7 +60,7 @@
                 <button id="save_review" class="btn btn-primary btn-lg">Save review</button>
             </div>
         </div>
-        <div class="feedback">
+        <div class="feedback" style="display: none;">
             <div class="feedback__wrapper">
                 <div class="feedback__loader"></div>
                 <button class="feedback__button">Submit your review</button>
