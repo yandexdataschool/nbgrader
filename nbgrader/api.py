@@ -1612,6 +1612,7 @@ class Gradebook(object):
             try:
                 self.db.commit()
             except (IntegrityError, FlushError) as e:
+                self.db.rollback()
                 raise InvalidEntry(*e.args)
 
         return solution_cell
