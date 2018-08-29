@@ -61,6 +61,9 @@ class CompileTestFunctions(NbGraderPreprocessor):
 
     hidden_block_lines = []
 
+    def format_notebook_id(self, name):
+        return name.lower().replace(' ', '_')
+
     def _process_hidden_blocks(self, cell):
         lines = cell.source.split("\n")
 
@@ -101,7 +104,7 @@ class CompileTestFunctions(NbGraderPreprocessor):
         nb, resources = super(CompileTestFunctions, self).preprocess(nb, resources)
 
         self.assignment_id = resources['nbgrader']['assignment']
-        self.notebook_id = resources['nbgrader']['notebook']
+        self.notebook_id = self.format_notebook_id(resources['nbgrader']['notebook'])
 
         if self.hidden_block_lines:
             orig_dir = os.getcwd()
@@ -122,8 +125,7 @@ class CompileTestFunctions(NbGraderPreprocessor):
             os.chdir(orig_dir)
 
             # make package
-            library_path = os.path.join('release',
-                                      self.assignment_id, 'tests')
+            library_path = os.path.join('release', self.assignment_id, 'tests')
             os.makedirs(library_path, exist_ok=True)
 
             package_init_file = os.path.join(library_path, '__init__.py')
