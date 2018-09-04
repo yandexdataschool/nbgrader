@@ -67,7 +67,7 @@ var GradeUI = Backbone.View.extend({
             }
         }
 
-        this.model.save({"manual_score": score, "extra_credit": extra_credit});
+        this.model.set({"manual_score": score, "extra_credit": extra_credit});
         this.render();
     },
 
@@ -103,13 +103,13 @@ var GradeUI = Backbone.View.extend({
     },
 
     assignFullCredit: function () {
-        this.model.save({"manual_score": this.model.get("max_score")});
+        this.model.set({"manual_score": this.model.get("max_score")});
         this.$score.select();
         this.$score.focus();
     },
 
     assignNoCredit: function () {
-        this.model.save({"manual_score": 0, "extra_credit": 0});
+        this.model.set({"manual_score": 0, "extra_credit": 0});
         this.$score.select();
         this.$score.focus();
     }
@@ -150,7 +150,7 @@ var CommentUI = Backbone.View.extend({
     },
 
     save: function () {
-        this.model.save({"manual_comment": this.$comment.val()});
+        this.model.set({"manual_comment": this.$comment.val()});
     },
 
     animateSaving: function () {

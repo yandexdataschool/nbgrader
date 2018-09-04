@@ -341,9 +341,19 @@ FormGrader.prototype.configureSaveButton = function() {
     var that = this;
 
     $("#save_review").on("click", function () {
-       that.save(function() {
-           console.log("Review saved.")
-       })
+       that.comments.each(function(model) {
+          if (model.hasChanged()) {
+              model.save();
+          }
+       });
+
+       that.grades.each(function(model) {
+           if (model.hasChanged()) {
+               model.save()
+           }
+       });
+
+       that.nextAssignment();
     });
 }
 
